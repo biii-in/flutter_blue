@@ -40,6 +40,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -312,6 +315,35 @@ public class FlutterBluePlugin implements FlutterPlugin, ActivityAware, MethodCa
                 }
                 mDevices.put(deviceId, new BluetoothDeviceCache(gattServer));
                 result.success(null);
+                break;
+            }
+
+            case "clearGattCache":{
+                String deviceId = (String)call.arguments;
+                BluetoothDeviceCache cache = mDevices.get(deviceId);
+                try {
+                    // BluetoothGatt gatt
+                    final Method refresh = cache.gatt.getClass().getMethod("refresh");
+                    if (refresh != null) {
+                        refresh.invoke(cache.gatt);
+                    }
+                } catch (Exception e) {
+                    // Log it
+                }
+                break;
+            }
+
+            case "requestConnectionPriority":{
+                String deviceId = (String)call.argument("id");
+                BluetoothDeviceCache cache = mDevices.get(deviceId);
+                try {
+                    // BluetoothGatt gatt
+                    boolean high= cache.gatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH);
+                    log(LogLevel.DEBUG, "ConnectionPriority High "+high);
+                    result.success(high);
+                } catch (Exception e) {
+                    // Log it
+                }
                 break;
             }
 

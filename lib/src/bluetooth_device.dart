@@ -48,6 +48,24 @@ class BluetoothDevice {
   Future disconnect() =>
       FlutterBlue.instance._channel.invokeMethod('disconnect', id.toString());
 
+  Future clearGattCache() async {
+    FlutterBlue.instance._channel.invokeMethod('clearGattCache', id.toString());
+    await Future.delayed(Duration(seconds: 1));
+  }
+
+  Future requestConnectionPriority(int priority) async {
+    if (priority >= 0 && priority <= 2) {
+      FlutterBlue.instance._channel.invokeMethod(
+        'requestConnectionPriority',
+        <String, dynamic>{
+          'id': id.toString(),
+          'priority': priority,
+        },
+      );
+      await Future.delayed(Duration(seconds: 1));
+    }
+  }
+
   BehaviorSubject<List<BluetoothService>> _services =
       BehaviorSubject.seeded([]);
 
